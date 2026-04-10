@@ -32,9 +32,13 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         initComponents();
         getContentPane().setBackground(new java.awt.Color(60, 63, 65));
         
-        // update countdown table
+        // initialise countdown table
+        tblCountdown.setDefaultEditor(Object.class, null);
         final File folder = new File("./res/countdown-audios");
         updateCountdowns(folder);
+        
+        // initialise playlist table
+        tblPlaylist.setDefaultEditor(Object.class, null);
     }
 
     /**
@@ -52,7 +56,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         spCountdown = new javax.swing.JScrollPane();
         tblCountdown = new javax.swing.JTable();
         spAudio = new javax.swing.JScrollPane();
-        tblAudio = new javax.swing.JTable();
+        tblPlaylist = new javax.swing.JTable();
         tfLocation = new javax.swing.JTextField();
         btnLocation = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -93,7 +97,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         });
         spCountdown.setViewportView(tblCountdown);
 
-        tblAudio.setModel(new javax.swing.table.DefaultTableModel(
+        tblPlaylist.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
                 {null, null, null},
@@ -112,7 +116,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        spAudio.setViewportView(tblAudio);
+        spAudio.setViewportView(tblPlaylist);
 
         btnLocation.setText("Select Location");
 
@@ -254,8 +258,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     private javax.swing.JLabel lbLocation;
     private javax.swing.JScrollPane spAudio;
     private javax.swing.JScrollPane spCountdown;
-    private javax.swing.JTable tblAudio;
     private javax.swing.JTable tblCountdown;
+    private javax.swing.JTable tblPlaylist;
     private javax.swing.JTextField tfLocation;
     // End of variables declaration//GEN-END:variables
 }
