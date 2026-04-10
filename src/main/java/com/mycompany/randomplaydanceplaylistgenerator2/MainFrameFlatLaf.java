@@ -5,9 +5,8 @@
 package com.mycompany.randomplaydanceplaylistgenerator2;
 
 import com.formdev.flatlaf.FlatDarkLaf;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import java.io.File;
 import java.util.*;
 import javax.swing.table.DefaultTableModel;
@@ -19,6 +18,7 @@ import javax.swing.table.DefaultTableModel;
 public class MainFrameFlatLaf extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrameFlatLaf.class.getName());
+    final JFileChooser fc = new JFileChooser();
 
     /**
      * Creates new form MainFrameFlatLaf
@@ -59,7 +59,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         tblPlaylist = new javax.swing.JTable();
         tfLocation = new javax.swing.JTextField();
         btnLocation = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        lbCountdown = new javax.swing.JLabel();
         btnClear = new javax.swing.JButton();
         btnExport = new javax.swing.JButton();
         btnCountdownAdd = new javax.swing.JButton();
@@ -72,16 +72,15 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         lbLocation.setText("Export Location");
 
         btnAddFile.setText("Add File");
+        btnAddFile.addActionListener(this::btnAddFileActionPerformed);
 
         btnAddFolder.setText("Add Folder");
         btnAddFolder.setToolTipText("");
+        btnAddFolder.addActionListener(this::btnAddFolderActionPerformed);
 
         tblCountdown.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
                 "Name", "Duration"
@@ -99,10 +98,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
         tblPlaylist.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "Name", "FilePath", "Duration"
@@ -120,7 +116,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
         btnLocation.setText("Select Location");
 
-        jLabel1.setText("Countdown Audio");
+        lbCountdown.setText("Countdown Audio");
 
         btnClear.setForeground(new java.awt.Color(255, 0, 0));
         btnClear.setText("Clear Songs");
@@ -132,6 +128,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         btnCountdownAdd.addActionListener(this::btnCountdownAddActionPerformed);
 
         btnCountdownDelete.setText("Delete Countdown Audio");
+        btnCountdownDelete.addActionListener(this::btnCountdownDeleteActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -152,7 +149,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                         .addComponent(btnExport))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
+                            .addComponent(lbCountdown, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
                             .addComponent(spCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addComponent(btnCountdownDelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnCountdownAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -171,7 +168,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAddFile)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnAddFolder))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -196,10 +193,61 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnAddFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFolderActionPerformed
+        int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+        }
+    }//GEN-LAST:event_btnAddFolderActionPerformed
+
+    private void btnAddFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFileActionPerformed
+        final JFileChooser fc = new JFileChooser();
+        int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            addToPlaylist(file);
+        }
+    }//GEN-LAST:event_btnAddFileActionPerformed
+
+    public void addToPlaylist(File file) {
+        Object[] fileAttributes = new Object[3];
+        String fileNameWithOutExt = file.getName();
+        fileAttributes[0] = fileNameWithOutExt;
+        fileAttributes[1] = file.getAbsolutePath();
+        fileAttributes[2] = file.length();
+        DefaultTableModel dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
+        dtmPlaylist.addRow(fileAttributes);
+    }
+    
     private void btnCountdownAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownAddActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnCountdownAddActionPerformed
 
+    public void updateCountdowns(File folder) {
+        File[] listOfFiles = folder.listFiles();
+        if (listOfFiles != null) {
+            ArrayList<Object[]> fileList = new ArrayList<>();
+            for (File listOfFile : listOfFiles) {
+                if (listOfFile.isFile()) { // add each file to list
+                    Object[] fileAttributes = new Object[2];
+                    String fileNameWithOutExt = listOfFile.getName();
+                    fileAttributes[0] = fileNameWithOutExt;
+                    fileAttributes[1] = listOfFile.length();
+                    fileList.add(fileAttributes);
+                }
+            }
+            DefaultTableModel dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
+            dtmCountdown.setRowCount(0);
+            for (Object[] row : fileList) {
+                dtmCountdown.addRow(row);
+            }
+        }
+    }
+    
+    private void btnCountdownDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownDeleteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnCountdownDeleteActionPerformed
+    
     /**
      * @param args the command line arguments
      */
@@ -224,27 +272,6 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new MainFrameFlatLaf().setVisible(true));
     }
-    
-    public void updateCountdowns(File folder) {
-        File[] listOfFiles = folder.listFiles();
-        if (listOfFiles != null) {
-            ArrayList<Object[]> fileList = new ArrayList<>();
-            for (File listOfFile : listOfFiles) {
-                if (listOfFile.isFile()) { // add each file to list
-                    Object[] fileAttributes = new Object[2];
-                    String fileNameWithOutExt = listOfFile.getName().replaceFirst("[.][^.]+$", "");
-                    fileAttributes[0] = fileNameWithOutExt;
-                    fileAttributes[1] = listOfFile.length();
-                    fileList.add(fileAttributes);
-                }
-            }
-            DefaultTableModel model = (DefaultTableModel) tblCountdown.getModel();
-            model.setRowCount(0);
-            for (Object[] row : fileList) {
-                model.addRow(row);
-            }
-        }
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddFile;
@@ -254,7 +281,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     private javax.swing.JButton btnCountdownDelete;
     private javax.swing.JButton btnExport;
     private javax.swing.JButton btnLocation;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lbCountdown;
     private javax.swing.JLabel lbLocation;
     private javax.swing.JScrollPane spAudio;
     private javax.swing.JScrollPane spCountdown;

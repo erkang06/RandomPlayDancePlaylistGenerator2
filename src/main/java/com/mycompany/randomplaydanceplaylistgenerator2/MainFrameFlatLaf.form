@@ -45,7 +45,7 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jLabel1" pref="201" max="32767" attributes="0"/>
+                          <Component id="lbCountdown" pref="201" max="32767" attributes="0"/>
                           <Component id="spCountdown" pref="0" max="32767" attributes="0"/>
                           <Component id="btnCountdownDelete" alignment="0" max="32767" attributes="0"/>
                           <Component id="btnCountdownAdd" alignment="0" max="32767" attributes="0"/>
@@ -71,7 +71,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="btnAddFile" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
+                  <Component id="lbCountdown" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
                   <Component id="btnAddFolder" alignment="3" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -108,12 +108,18 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Add File"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddFileActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnAddFolder">
       <Properties>
         <Property name="text" type="java.lang.String" value="Add Folder"/>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddFolderActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="spCountdown">
       <AuxValues>
@@ -125,7 +131,7 @@
         <Component class="javax.swing.JTable" name="tblCountdown">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="2" rowCount="4">
+              <Table columnCount="2" rowCount="0">
                 <Column editable="true" title="Name" type="java.lang.String"/>
                 <Column editable="true" title="Duration" type="java.lang.Object"/>
               </Table>
@@ -161,7 +167,7 @@
         <Component class="javax.swing.JTable" name="tblPlaylist">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="3" rowCount="4">
+              <Table columnCount="3" rowCount="0">
                 <Column editable="true" title="Name" type="java.lang.String"/>
                 <Column editable="true" title="FilePath" type="java.lang.String"/>
                 <Column editable="true" title="Duration" type="java.lang.Object"/>
@@ -200,7 +206,7 @@
         <Property name="text" type="java.lang.String" value="Select Location"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="lbCountdown">
       <Properties>
         <Property name="text" type="java.lang.String" value="Countdown Audio"/>
       </Properties>
@@ -233,6 +239,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete Countdown Audio"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCountdownDeleteActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
