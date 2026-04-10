@@ -8,6 +8,7 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import javax.swing.*;
 import javax.swing.UIManager;
 import java.io.File;
+import java.nio.file.*;
 import java.util.*;
 import javax.swing.table.DefaultTableModel;
 
@@ -18,8 +19,8 @@ import javax.swing.table.DefaultTableModel;
 public class MainFrameFlatLaf extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrameFlatLaf.class.getName());
-    final JFileChooser fc;
-    final JFileChooser fcFolder;
+    final JFileChooser fc, fcFolder;
+    DefaultTableModel dtmCountdown, dtmPlaylist;
 
     /**
      * Creates new form MainFrameFlatLaf
@@ -121,14 +122,17 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         spAudio.setViewportView(tblPlaylist);
 
         btnLocation.setText("Select Location");
+        btnLocation.addActionListener(this::btnLocationActionPerformed);
 
         lbCountdown.setText("Countdown Audio");
 
         btnClear.setForeground(new java.awt.Color(255, 0, 0));
         btnClear.setText("Clear Songs");
+        btnClear.addActionListener(this::btnClearActionPerformed);
 
         btnExport.setForeground(new java.awt.Color(0, 255, 0));
         btnExport.setText("Export");
+        btnExport.addActionListener(this::btnExportActionPerformed);
 
         btnCountdownAdd.setText("Add Countdown Audio");
         btnCountdownAdd.addActionListener(this::btnCountdownAddActionPerformed);
@@ -227,7 +231,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         fileAttributes[0] = file.getName();
         fileAttributes[1] = file.getPath();
         fileAttributes[2] = file.length();
-        DefaultTableModel dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
+        dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
         dtmPlaylist.addRow(fileAttributes);
     }
     
@@ -247,7 +251,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                     fileList.add(fileAttributes);
                 }
             }
-            DefaultTableModel dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
+            dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
             dtmCountdown.setRowCount(0);
             for (Object[] row : fileList) {
                 dtmCountdown.addRow(row);
@@ -258,6 +262,77 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     private void btnCountdownDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownDeleteActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnCountdownDeleteActionPerformed
+
+    private void btnLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLocationActionPerformed
+        int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File folder = fcFolder.getSelectedFile();
+            tfLocation.setText(folder.getPath());
+        }
+    }//GEN-LAST:event_btnLocationActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
+        dtmPlaylist.setRowCount(0);
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
+        // data validation
+        int countdownIndex = getSelectedCountdownIndex();
+        if (countdownIndex == -1) return;
+        if (isPlaylistEmpty()) return;
+        if (!isPathValid()) return;
+        
+        // get selected countdown
+        dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
+        int countdownCount = dtmCountdown.getColumnCount();
+        Object[] selectedCountdown = new Object[countdownCount];
+        for (int i = 0; i < countdownCount; i++) {
+            selectedCountdown[i] = dtmCountdown.getValueAt(countdownCount, i);
+        }
+        JOptionPane.showMessageDialog(rootPane,
+                selectedCountdown[0],
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        
+    }//GEN-LAST:event_btnExportActionPerformed
+    
+    private int getSelectedCountdownIndex() {
+        int selectedRow = tblCountdown.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(rootPane,
+                "No countdown selected",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+        return selectedRow;
+    }
+    
+    private boolean isPlaylistEmpty() {
+        if (tblPlaylist.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(rootPane,
+                "Playlist is empty",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            return true;
+        } return false;
+    }
+    
+    private boolean isPathValid() {
+        String filepath = tfLocation.getText();
+        if (!filepath.equals("")) {
+            try {
+                Paths.get(filepath);
+                return true;
+            } catch (InvalidPathException | NullPointerException ex) {} 
+        } 
+        JOptionPane.showMessageDialog(rootPane,
+            "Export path isn't valid",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return false;
+    }
     
     /**
      * @param args the command line arguments

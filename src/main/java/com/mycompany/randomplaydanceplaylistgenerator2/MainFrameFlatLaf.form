@@ -205,6 +205,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Select Location"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLocationActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="lbCountdown">
       <Properties>
@@ -218,6 +221,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Clear Songs"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnExport">
       <Properties>
@@ -226,6 +232,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Export"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExportActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnCountdownAdd">
       <Properties>
