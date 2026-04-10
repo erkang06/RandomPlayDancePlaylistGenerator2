@@ -18,7 +18,8 @@ import javax.swing.table.DefaultTableModel;
 public class MainFrameFlatLaf extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrameFlatLaf.class.getName());
-    final JFileChooser fc = new JFileChooser();
+    final JFileChooser fc;
+    final JFileChooser fcFolder;
 
     /**
      * Creates new form MainFrameFlatLaf
@@ -39,6 +40,11 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         
         // initialise playlist table
         tblPlaylist.setDefaultEditor(Object.class, null);
+        
+        // initialise file/folder choosers
+        fc = new JFileChooser();
+        fcFolder = new JFileChooser();
+        fcFolder.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     }
 
     /**
@@ -194,14 +200,21 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFolderActionPerformed
-        int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
+        int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
+            File folder = fcFolder.getSelectedFile();
+            File[] listOfFiles = folder.listFiles();
+            if (listOfFiles != null) {
+                for (File file : listOfFiles) {
+                    if (file.isFile()) {
+                        addToPlaylist(file);
+                    }
+                }
+            }
         }
     }//GEN-LAST:event_btnAddFolderActionPerformed
 
     private void btnAddFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFileActionPerformed
-        final JFileChooser fc = new JFileChooser();
         int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
@@ -211,9 +224,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
     public void addToPlaylist(File file) {
         Object[] fileAttributes = new Object[3];
-        String fileNameWithOutExt = file.getName();
-        fileAttributes[0] = fileNameWithOutExt;
-        fileAttributes[1] = file.getAbsolutePath();
+        fileAttributes[0] = file.getName();
+        fileAttributes[1] = file.getPath();
         fileAttributes[2] = file.length();
         DefaultTableModel dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
         dtmPlaylist.addRow(fileAttributes);
@@ -227,12 +239,11 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
             ArrayList<Object[]> fileList = new ArrayList<>();
-            for (File listOfFile : listOfFiles) {
-                if (listOfFile.isFile()) { // add each file to list
+            for (File file : listOfFiles) {
+                if (file.isFile()) { // add each countdown to list
                     Object[] fileAttributes = new Object[2];
-                    String fileNameWithOutExt = listOfFile.getName();
-                    fileAttributes[0] = fileNameWithOutExt;
-                    fileAttributes[1] = listOfFile.length();
+                    fileAttributes[0] = file.getName();
+                    fileAttributes[1] = file.length();
                     fileList.add(fileAttributes);
                 }
             }
