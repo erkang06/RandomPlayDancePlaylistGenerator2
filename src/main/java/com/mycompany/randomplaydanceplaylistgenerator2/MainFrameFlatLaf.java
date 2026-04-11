@@ -115,11 +115,11 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Name", "FilePath", "Duration"
+                "Name", "FilePath"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -242,12 +242,33 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddFileActionPerformed
 
     private void addToPlaylist(File file) {
-        Object[] fileAttributes = new Object[3];
+        // add attributes to array
+        Object[] fileAttributes = new Object[2];
         fileAttributes[0] = file.getName();
         fileAttributes[1] = file.getPath();
-        fileAttributes[2] = file.length();
+        
+        // add array to table
         dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
         dtmPlaylist.addRow(fileAttributes);
+    }
+
+    private void btnDeleteSongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteSongActionPerformed
+        int playlistIndex = getSelectedPlaylistIndex();
+        if (playlistIndex == -1) return;
+        dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
+        dtmPlaylist.removeRow(playlistIndex);
+    }//GEN-LAST:event_btnDeleteSongActionPerformed
+
+    private int getSelectedPlaylistIndex() {
+        int selectedRow = tblPlaylist.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                "No song selected",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+        return selectedRow;
     }
     
     private void btnCountdownAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownAddActionPerformed
@@ -273,9 +294,9 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }
     
     private void btnCountdownDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownDeleteActionPerformed
-        // TODO add your handling code here:
+            
     }//GEN-LAST:event_btnCountdownDeleteActionPerformed
-
+  
     private void btnLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLocationActionPerformed
         int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -300,68 +321,75 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
         String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
         
-        try { // write
+        try { // create ffmpeg command
             
             List<String> command = new ArrayList<>();
             command.add("ffmpeg");
-            command.add("-y");
-
-            // add each file as input
+            command.add("-y");  // overwrite existing file if it exists
+            
+            // add each song in playlist with countdown before
             for (int i = 0; i < dtmPlaylist.getRowCount(); i++) {
-                command.add("-i");
+                command.add("-i"); // countdown
                 command.add(countdownCanonicalPath + "/" + selectedCountdown);
-
-                command.add("-i");
+                command.add("-i"); // song
                 command.add(dtmPlaylist.getValueAt(i, 1).toString());
             }
-
-            // build filter_complex
+            
+            // filter graph to combine multiple audio files
             StringBuilder filter = new StringBuilder();
+            
+            // [0:a][1:a][2:a][3:a]... for each audio file
             int totalInputs = dtmPlaylist.getRowCount() * 2;
-
             for (int i = 0; i < totalInputs; i++) {
                 filter.append("[").append(i).append(":a]");
             }
-            filter.append("concat=n=").append(totalInputs).append(":v=0:a=1[out]");
-
+            
+            filter.append("concat=n=")      // concatenate all files
+                .append(totalInputs)        // n = number of files
+                .append(":v=0:a=1[out]");   // v=0 = no video; a=1 = 1 audio output 
+            
             command.add("-filter_complex");
             command.add(filter.toString());
-
+            
+            // use the output from the filter
             command.add("-map");
             command.add("[out]");
             
-            command.add("-ac");
-            command.add("2");
-
-            command.add("-ar");
+            // set output format
+            command.add("-ac"); // number of audio channels
+            command.add("2");   // 2 - stereo
+            command.add("-ar"); // sample rate
             command.add("44100");
-
+            
+            // set output location
             command.add(tfLocation.getText() + File.separator + "output.mp3");
-
+            
+            // run and show ffmpeg output
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.inheritIO();
-
             Process process = pb.start();
             process.waitFor();
             
-            JOptionPane.showMessageDialog(this, "Export complete!");
+            JOptionPane.showMessageDialog(this,
+                "Export Complete!",
+                "Success",
+                JOptionPane.PLAIN_MESSAGE);
 
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Export failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                "Export failed: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
         }
         
     }//GEN-LAST:event_btnExportActionPerformed
-
-    private void btnDeleteSongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteSongActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnDeleteSongActionPerformed
     
     private int getSelectedCountdownIndex() {
         int selectedRow = tblCountdown.getSelectedRow();
 
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(rootPane,
+            JOptionPane.showMessageDialog(this,
                 "No countdown selected",
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
@@ -371,7 +399,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     
     private boolean isPlaylistEmpty() {
         if (tblPlaylist.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(rootPane,
+            JOptionPane.showMessageDialog(this,
                 "Playlist is empty",
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
@@ -387,7 +415,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 return true;
             } catch (InvalidPathException | NullPointerException ex) {} 
         } 
-        JOptionPane.showMessageDialog(rootPane,
+        JOptionPane.showMessageDialog(this,
             "Export path isn't valid",
             "Error",
             JOptionPane.ERROR_MESSAGE);
