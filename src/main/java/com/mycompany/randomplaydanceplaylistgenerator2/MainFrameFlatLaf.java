@@ -20,6 +20,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrameFlatLaf.class.getName());
     private static final File COUNTDOWN_FOLDER = new File("./res/countdown-audios");
+    private static final String FFMPEG_FILEPATH = "./res/ffmpeg/ffmpeg.exe";
     private JFileChooser fc, fcFolder;
     private DefaultTableModel dtmCountdown, dtmPlaylist;
     private String countdownCanonicalPath;
@@ -366,7 +367,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         try { // create ffmpeg command
             
             List<String> ffmpegCommand = new ArrayList<>();
-            ffmpegCommand.add("ffmpeg");
+            // ffmpegCommand.add("ffmpeg");
+            ffmpegCommand.add(new File(FFMPEG_FILEPATH).getAbsolutePath());
             ffmpegCommand.add("-y");  // overwrite existing file if it exists
             
             // add each song in playlist with countdown before
