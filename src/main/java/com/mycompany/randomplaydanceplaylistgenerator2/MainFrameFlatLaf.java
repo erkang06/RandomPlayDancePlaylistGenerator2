@@ -71,6 +71,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         btnExport = new javax.swing.JButton();
         btnCountdownAdd = new javax.swing.JButton();
         btnCountdownDelete = new javax.swing.JButton();
+        btnDeleteSong = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("RPD Playlist Generator");
@@ -90,11 +91,11 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Name", "Duration"
+                "Name"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Object.class
+                java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -140,6 +141,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         btnCountdownDelete.setText("Delete Countdown Audio");
         btnCountdownDelete.addActionListener(this::btnCountdownDeleteActionPerformed);
 
+        btnDeleteSong.setText("Delete Song");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -153,33 +156,37 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                         .addComponent(tfLocation, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnLocation)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
                         .addComponent(btnClear)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnExport))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lbCountdown, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
+                            .addComponent(btnCountdownDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
+                            .addComponent(btnCountdownAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(spCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(btnCountdownDelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnCountdownAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(lbCountdown, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnAddFolder, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 241, Short.MAX_VALUE)
+                                .addComponent(btnAddFolder)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnAddFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(spAudio, javax.swing.GroupLayout.DEFAULT_SIZE, 481, Short.MAX_VALUE))))
-                .addContainerGap())
+                                .addComponent(btnAddFile)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnDeleteSong))
+                            .addComponent(spAudio)))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAddFile)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lbCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAddFolder))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnAddFile)
+                        .addComponent(btnAddFolder)
+                        .addComponent(btnDeleteSong)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -199,7 +206,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        setSize(new java.awt.Dimension(712, 427));
+        setSize(new java.awt.Dimension(706, 427));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -245,9 +252,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
             ArrayList<Object[]> fileList = new ArrayList<>();
             for (File file : listOfFiles) {
                 if (file.isFile()) { // add each countdown to list
-                    Object[] fileAttributes = new Object[2];
-                    fileAttributes[0] = file.getName();
-                    fileAttributes[1] = file.length();
+                    Object[] fileAttributes = {file.getName()};
                     fileList.add(fileAttributes);
                 }
             }
@@ -365,6 +370,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     private javax.swing.JButton btnClear;
     private javax.swing.JButton btnCountdownAdd;
     private javax.swing.JButton btnCountdownDelete;
+    private javax.swing.JButton btnDeleteSong;
     private javax.swing.JButton btnExport;
     private javax.swing.JButton btnLocation;
     private javax.swing.JLabel lbCountdown;
