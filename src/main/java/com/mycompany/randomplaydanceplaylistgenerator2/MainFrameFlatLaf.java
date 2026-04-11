@@ -219,6 +219,25 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
     
+    // common functions
+    
+    private void showErrorDialog(String message) {
+        JOptionPane.showMessageDialog(this,
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private int getSelectedCountdownIndex() {
+        int selectedRow = tblCountdown.getSelectedRow();
+
+        if (selectedRow == -1) {
+            showErrorDialog("No countdown selected");
+        }
+        return selectedRow;
+    }
+    
+    // playlist functions
     private void btnAddFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFolderActionPerformed
         int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -264,21 +283,19 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         int selectedRow = tblPlaylist.getSelectedRow();
 
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this,
-                "No song selected",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("No song selected");
         }
         return selectedRow;
     }
     
+    // countdown functions
     private void btnCountdownAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownAddActionPerformed
         int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
-            String fileName = file.getName();
+            File countdownFile = fc.getSelectedFile();
+            String countdownFileName = countdownFile.getName();
             try {
-                Files.copy(file.toPath(), Paths.get(countdownCanonicalPath + "/" + fileName));
+                Files.copy(countdownFile.toPath(), Paths.get(countdownCanonicalPath + "/" + countdownFileName));
                 updateCountdowns(countdownFolder);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -287,7 +304,19 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCountdownAddActionPerformed
    
     private void btnCountdownDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownDeleteActionPerformed
-        // to do
+        int countdownIndex = getSelectedCountdownIndex();
+        if (countdownIndex == -1) return;
+        
+        // get selected countdown
+        dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
+        String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
+        File countdownFile = new File(countdownCanonicalPath + "/" + selectedCountdown);
+        
+        if (countdownFile.delete()) {
+            dtmCountdown.removeRow(countdownIndex);
+        } else {
+            showErrorDialog("Countdown couldn't be deleted");
+        }
     }//GEN-LAST:event_btnCountdownDeleteActionPerformed
 
     private void updateCountdowns(File folder) {
@@ -307,7 +336,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
             }
         }
     }
-    
+
+    // location functions
     private void btnLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLocationActionPerformed
         int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -316,6 +346,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnLocationActionPerformed
 
+    // clear and export functions
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
         dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
         dtmPlaylist.setRowCount(0);
@@ -388,32 +419,14 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                "Export failed: " + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("Export failed: " + e.getMessage());
         }
         
     }//GEN-LAST:event_btnExportActionPerformed
     
-    private int getSelectedCountdownIndex() {
-        int selectedRow = tblCountdown.getSelectedRow();
-
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this,
-                "No countdown selected",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-        }
-        return selectedRow;
-    }
-    
     private boolean isPlaylistEmpty() {
         if (tblPlaylist.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this,
-                "Playlist is empty",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+            showErrorDialog("Playlist is empty");
             return true;
         } return false;
     }
@@ -426,10 +439,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 return true;
             } catch (InvalidPathException | NullPointerException ex) {} 
         } 
-        JOptionPane.showMessageDialog(this,
-            "Export path isn't valid",
-            "Error",
-            JOptionPane.ERROR_MESSAGE);
+        showErrorDialog("Export path isn't valid");
         return false;
     }
     
