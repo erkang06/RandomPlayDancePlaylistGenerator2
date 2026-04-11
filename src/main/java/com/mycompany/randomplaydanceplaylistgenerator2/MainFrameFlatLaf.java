@@ -21,6 +21,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrameFlatLaf.class.getName());
     final JFileChooser fc, fcFolder;
     DefaultTableModel dtmCountdown, dtmPlaylist;
+    String countdownCanonicalPath;
 
     /**
      * Creates new form MainFrameFlatLaf
@@ -34,10 +35,15 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         initComponents();
         getContentPane().setBackground(new java.awt.Color(60, 63, 65));
         
-        // initialise countdown table
+        // initialise countdown table and set canon path
         tblCountdown.setDefaultEditor(Object.class, null);
         final File folder = new File("./res/countdown-audios");
         updateCountdowns(folder);
+        try {
+            countdownCanonicalPath = folder.getCanonicalPath();
+        } catch (IOException ex) {
+            System.getLogger(MainFrameFlatLaf.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }        
         
         // initialise playlist table
         tblPlaylist.setDefaultEditor(Object.class, null);
@@ -235,7 +241,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAddFileActionPerformed
 
-    public void addToPlaylist(File file) {
+    private void addToPlaylist(File file) {
         Object[] fileAttributes = new Object[3];
         fileAttributes[0] = file.getName();
         fileAttributes[1] = file.getPath();
@@ -248,7 +254,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnCountdownAddActionPerformed
 
-    public void updateCountdowns(File folder) {
+    private void updateCountdowns(File folder) {
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
             ArrayList<Object[]> fileList = new ArrayList<>();
@@ -293,41 +299,51 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         // get selected countdown
         dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
         String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
-        JOptionPane.showMessageDialog(rootPane,
-            selectedCountdown,
-            "Error",
-            JOptionPane.ERROR_MESSAGE);
         
-        try {
-            DefaultTableModel model = (DefaultTableModel) tblPlaylist.getModel();
+        try { // write
+            
+            List<String> command = new ArrayList<>();
+            command.add("ffmpeg");
+            command.add("-y");
 
-            // Create temp file list for ffmpeg
-            File listFile = new File("filelist.txt");
-            PrintWriter writer = new PrintWriter(listFile);
+            // add each file as input
+            for (int i = 0; i < dtmPlaylist.getRowCount(); i++) {
+                command.add("-i");
+                command.add(countdownCanonicalPath + "/" + selectedCountdown);
 
-            for (int i = 0; i < model.getRowCount(); i++) {
-                String path = model.getValueAt(i, 1).toString();
-                writer.println("file '" + path.replace("\\", "/") + "'");
+                command.add("-i");
+                command.add(dtmPlaylist.getValueAt(i, 1).toString());
             }
-            writer.close();
 
-            // Output file
-            String outputPath = tfLocation.getText() + File.separator + "output.mp3";
+            // build filter_complex
+            StringBuilder filter = new StringBuilder();
+            int totalInputs = dtmPlaylist.getRowCount() * 2;
 
-            // Run FFmpeg
-            ProcessBuilder pb = new ProcessBuilder(
-                "ffmpeg",
-                "-f", "concat",
-                "-safe", "0",
-                "-i", listFile.getAbsolutePath(),
-                "-c", "copy",
-                outputPath
-            );
+            for (int i = 0; i < totalInputs; i++) {
+                filter.append("[").append(i).append(":a]");
+            }
+            filter.append("concat=n=").append(totalInputs).append(":v=0:a=1[out]");
 
+            command.add("-filter_complex");
+            command.add(filter.toString());
+
+            command.add("-map");
+            command.add("[out]");
+            
+            command.add("-ac");
+            command.add("2");
+
+            command.add("-ar");
+            command.add("44100");
+
+            command.add(tfLocation.getText() + File.separator + "output.mp3");
+
+            ProcessBuilder pb = new ProcessBuilder(command);
             pb.inheritIO();
+
             Process process = pb.start();
             process.waitFor();
-
+            
             JOptionPane.showMessageDialog(this, "Export complete!");
 
         } catch (Exception e) {
