@@ -19,10 +19,10 @@ import javax.swing.table.DefaultTableModel;
 public class MainFrameFlatLaf extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrameFlatLaf.class.getName());
+    private static final File COUNTDOWN_FOLDER = new File("./res/countdown-audios");
     private JFileChooser fc, fcFolder;
     private DefaultTableModel dtmCountdown, dtmPlaylist;
     private String countdownCanonicalPath;
-    private File countdownFolder;
 
     /**
      * Creates new form MainFrameFlatLaf
@@ -38,10 +38,10 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         
         // initialise countdown table and set canon path
         tblCountdown.setDefaultEditor(Object.class, null);
-        countdownFolder = new File("./res/countdown-audios");
-        updateCountdowns(countdownFolder);
+        
+        updateCountdowns();
         try {
-            countdownCanonicalPath = countdownFolder.getCanonicalPath();
+            countdownCanonicalPath = COUNTDOWN_FOLDER.getCanonicalPath();
         } catch (IOException ex) {
             System.getLogger(MainFrameFlatLaf.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
@@ -296,7 +296,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
             String countdownFileName = countdownFile.getName();
             try {
                 Files.copy(countdownFile.toPath(), Paths.get(countdownCanonicalPath + "/" + countdownFileName));
-                updateCountdowns(countdownFolder);
+                updateCountdowns();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -313,14 +313,14 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         File countdownFile = new File(countdownCanonicalPath + "/" + selectedCountdown);
         
         if (countdownFile.delete()) {
-            dtmCountdown.removeRow(countdownIndex);
+            updateCountdowns();
         } else {
             showErrorDialog("Countdown couldn't be deleted");
         }
     }//GEN-LAST:event_btnCountdownDeleteActionPerformed
 
-    private void updateCountdowns(File folder) {
-        File[] listOfFiles = folder.listFiles();
+    private void updateCountdowns() {
+        File[] listOfFiles = COUNTDOWN_FOLDER.listFiles();
         if (listOfFiles != null) {
             ArrayList<Object[]> fileList = new ArrayList<>();
             for (File file : listOfFiles) {
@@ -365,51 +365,51 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         
         try { // create ffmpeg command
             
-            List<String> command = new ArrayList<>();
-            command.add("ffmpeg");
-            command.add("-y");  // overwrite existing file if it exists
+            List<String> ffmpegCommand = new ArrayList<>();
+            ffmpegCommand.add("ffmpeg");
+            ffmpegCommand.add("-y");  // overwrite existing file if it exists
             
             // add each song in playlist with countdown before
             for (int i = 0; i < dtmPlaylist.getRowCount(); i++) {
-                command.add("-i"); // countdown
-                command.add(countdownCanonicalPath + "/" + selectedCountdown);
-                command.add("-i"); // song
-                command.add(dtmPlaylist.getValueAt(i, 1).toString());
+                ffmpegCommand.add("-i"); // countdown
+                ffmpegCommand.add(countdownCanonicalPath + "/" + selectedCountdown);
+                ffmpegCommand.add("-i"); // song
+                ffmpegCommand.add(dtmPlaylist.getValueAt(i, 1).toString());
             }
             
-            // filter graph to combine multiple audio files
-            StringBuilder filter = new StringBuilder();
+            // concat filter to combine multiple audio files
+            StringBuilder concatFilter = new StringBuilder();
             
             // [0:a][1:a][2:a][3:a]... for each audio file
             int totalInputs = dtmPlaylist.getRowCount() * 2;
             for (int i = 0; i < totalInputs; i++) {
-                filter.append("[").append(i).append(":a]");
+                concatFilter.append("[").append(i).append(":a]");
             }
             
-            filter.append("concat=n=")      // concatenate all files
+            concatFilter.append("concat=n=")      // concatenate all files
                 .append(totalInputs)        // n = number of files
                 .append(":v=0:a=1[out]");   // v=0 = no video; a=1 = 1 audio output 
             
-            command.add("-filter_complex");
-            command.add(filter.toString());
+            ffmpegCommand.add("-filter_complex");
+            ffmpegCommand.add(concatFilter.toString());
             
             // use the output from the filter
-            command.add("-map");
-            command.add("[out]");
+            ffmpegCommand.add("-map");
+            ffmpegCommand.add("[out]");
             
             // set output format
-            command.add("-ac"); // number of audio channels
-            command.add("2");   // 2 - stereo
-            command.add("-ar"); // sample rate
-            command.add("44100");
+            ffmpegCommand.add("-ac"); // number of audio channels
+            ffmpegCommand.add("2");   // 2 - stereo
+            ffmpegCommand.add("-ar"); // sample rate
+            ffmpegCommand.add("44100");
             
             // set output location
-            command.add(tfLocation.getText() + File.separator + "output.mp3");
+            ffmpegCommand.add(tfLocation.getText() + File.separator + "output.mp3");
             
             // run and show ffmpeg output
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.inheritIO();
-            Process process = pb.start();
+            ProcessBuilder pbExport = new ProcessBuilder(ffmpegCommand);
+            pbExport.inheritIO();
+            Process process = pbExport.start();
             process.waitFor();
             
             JOptionPane.showMessageDialog(this,
