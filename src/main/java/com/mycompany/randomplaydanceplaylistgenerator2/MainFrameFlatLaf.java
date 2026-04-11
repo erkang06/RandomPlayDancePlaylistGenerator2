@@ -7,7 +7,7 @@ package com.mycompany.randomplaydanceplaylistgenerator2;
 import com.formdev.flatlaf.FlatDarkLaf;
 import javax.swing.*;
 import javax.swing.UIManager;
-import java.io.File;
+import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import javax.swing.table.DefaultTableModel;
@@ -142,6 +142,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         btnCountdownDelete.addActionListener(this::btnCountdownDeleteActionPerformed);
 
         btnDeleteSong.setText("Delete Song");
+        btnDeleteSong.addActionListener(this::btnDeleteSongActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -164,8 +165,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnCountdownDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
                             .addComponent(btnCountdownAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(spCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(lbCountdown, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(lbCountdown, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(spCountdown, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -175,7 +176,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                                 .addComponent(btnAddFile)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnDeleteSong))
-                            .addComponent(spAudio)))))
+                            .addComponent(spAudio))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -206,7 +208,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        setSize(new java.awt.Dimension(706, 427));
+        setSize(new java.awt.Dimension(712, 427));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -290,17 +292,54 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         
         // get selected countdown
         dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
-        int countdownCount = dtmCountdown.getColumnCount();
-        Object[] selectedCountdown = new Object[countdownCount];
-        for (int i = 0; i < countdownCount; i++) {
-            selectedCountdown[i] = dtmCountdown.getValueAt(countdownCount, i);
-        }
+        String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
         JOptionPane.showMessageDialog(rootPane,
-                selectedCountdown[0],
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+            selectedCountdown,
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        
+        try {
+            DefaultTableModel model = (DefaultTableModel) tblPlaylist.getModel();
+
+            // Create temp file list for ffmpeg
+            File listFile = new File("filelist.txt");
+            PrintWriter writer = new PrintWriter(listFile);
+
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String path = model.getValueAt(i, 1).toString();
+                writer.println("file '" + path.replace("\\", "/") + "'");
+            }
+            writer.close();
+
+            // Output file
+            String outputPath = tfLocation.getText() + File.separator + "output.mp3";
+
+            // Run FFmpeg
+            ProcessBuilder pb = new ProcessBuilder(
+                "ffmpeg",
+                "-f", "concat",
+                "-safe", "0",
+                "-i", listFile.getAbsolutePath(),
+                "-c", "copy",
+                outputPath
+            );
+
+            pb.inheritIO();
+            Process process = pb.start();
+            process.waitFor();
+
+            JOptionPane.showMessageDialog(this, "Export complete!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Export failed: " + e.getMessage());
+        }
         
     }//GEN-LAST:event_btnExportActionPerformed
+
+    private void btnDeleteSongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteSongActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnDeleteSongActionPerformed
     
     private int getSelectedCountdownIndex() {
         int selectedRow = tblCountdown.getSelectedRow();
