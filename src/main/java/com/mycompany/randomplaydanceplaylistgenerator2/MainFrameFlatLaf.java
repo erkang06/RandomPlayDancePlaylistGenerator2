@@ -19,9 +19,10 @@ import javax.swing.table.DefaultTableModel;
 public class MainFrameFlatLaf extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrameFlatLaf.class.getName());
-    final JFileChooser fc, fcFolder;
-    DefaultTableModel dtmCountdown, dtmPlaylist;
-    String countdownCanonicalPath;
+    private JFileChooser fc, fcFolder;
+    private DefaultTableModel dtmCountdown, dtmPlaylist;
+    private String countdownCanonicalPath;
+    private File countdownFolder;
 
     /**
      * Creates new form MainFrameFlatLaf
@@ -37,13 +38,13 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         
         // initialise countdown table and set canon path
         tblCountdown.setDefaultEditor(Object.class, null);
-        final File folder = new File("./res/countdown-audios");
-        updateCountdowns(folder);
+        countdownFolder = new File("./res/countdown-audios");
+        updateCountdowns(countdownFolder);
         try {
-            countdownCanonicalPath = folder.getCanonicalPath();
+            countdownCanonicalPath = countdownFolder.getCanonicalPath();
         } catch (IOException ex) {
             System.getLogger(MainFrameFlatLaf.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }        
+        }
         
         // initialise playlist table
         tblPlaylist.setDefaultEditor(Object.class, null);
@@ -217,7 +218,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         setSize(new java.awt.Dimension(712, 427));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void btnAddFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFolderActionPerformed
         int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -272,8 +273,22 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }
     
     private void btnCountdownAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownAddActionPerformed
-        // TODO add your handling code here:
+        int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            String fileName = file.getName();
+            try {
+                Files.copy(file.toPath(), Paths.get(countdownCanonicalPath + "/" + fileName));
+                updateCountdowns(countdownFolder);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }//GEN-LAST:event_btnCountdownAddActionPerformed
+   
+    private void btnCountdownDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownDeleteActionPerformed
+        // to do
+    }//GEN-LAST:event_btnCountdownDeleteActionPerformed
 
     private void updateCountdowns(File folder) {
         File[] listOfFiles = folder.listFiles();
@@ -293,10 +308,6 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         }
     }
     
-    private void btnCountdownDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownDeleteActionPerformed
-            
-    }//GEN-LAST:event_btnCountdownDeleteActionPerformed
-  
     private void btnLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLocationActionPerformed
         int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
