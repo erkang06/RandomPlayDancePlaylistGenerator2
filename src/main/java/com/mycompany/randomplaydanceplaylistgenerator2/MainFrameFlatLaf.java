@@ -546,24 +546,35 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExportActionPerformed
 
     private void btnPlaylistUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistUpActionPerformed
+        movePlaylistSong(false);
+    }//GEN-LAST:event_btnPlaylistUpActionPerformed
+
+    private void btnPlaylistDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistDownActionPerformed
+        movePlaylistSong(true);
+    }//GEN-LAST:event_btnPlaylistDownActionPerformed
+    
+    private void movePlaylistSong(boolean isDown) {
         int playlistIndex = getSelectedPlaylistIndex();
         // return if index not found or already at top of playlist
-        if (playlistIndex == -1 || playlistIndex == 0) return;
+        int playlistEndIndex = 0;
+        if (isDown) {
+            playlistEndIndex = tblPlaylist.getRowCount() - 1;
+        }
+        if (playlistIndex == -1 || playlistIndex == playlistEndIndex) return;
         dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
         Object[] rowToSwap = new Object[dtmPlaylist.getColumnCount()];
         for (int i = 0; i < dtmPlaylist.getColumnCount(); i++) {
             rowToSwap[i] = dtmPlaylist.getValueAt(playlistIndex, i);
         }
         dtmPlaylist.removeRow(playlistIndex);
-        playlistIndex--;
+        if (isDown) {
+            playlistIndex++;
+        } else {
+            playlistIndex--;
+        }
         dtmPlaylist.insertRow(playlistIndex, rowToSwap);
         tblPlaylist.setRowSelectionInterval(playlistIndex, playlistIndex);
-    }//GEN-LAST:event_btnPlaylistUpActionPerformed
-
-    private void btnPlaylistDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistDownActionPerformed
-        // make a function for both up and down w/ parameters
-    }//GEN-LAST:event_btnPlaylistDownActionPerformed
-    
+    }
     private boolean isPlaylistEmpty() {
         if (tblPlaylist.getRowCount() == 0) {
             showErrorDialog("Playlist is empty");
