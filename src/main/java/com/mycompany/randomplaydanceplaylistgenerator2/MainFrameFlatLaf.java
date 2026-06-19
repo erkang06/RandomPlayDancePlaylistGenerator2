@@ -546,11 +546,22 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExportActionPerformed
 
     private void btnPlaylistUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistUpActionPerformed
-        // TODO add your handling code here:
+        int playlistIndex = getSelectedPlaylistIndex();
+        // return if index not found or already at top of playlist
+        if (playlistIndex == -1 || playlistIndex == 0) return;
+        dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
+        Object[] rowToSwap = new Object[dtmPlaylist.getColumnCount()];
+        for (int i = 0; i < dtmPlaylist.getColumnCount(); i++) {
+            rowToSwap[i] = dtmPlaylist.getValueAt(playlistIndex, i);
+        }
+        dtmPlaylist.removeRow(playlistIndex);
+        playlistIndex--;
+        dtmPlaylist.insertRow(playlistIndex, rowToSwap);
+        tblPlaylist.setRowSelectionInterval(playlistIndex, playlistIndex);
     }//GEN-LAST:event_btnPlaylistUpActionPerformed
 
     private void btnPlaylistDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistDownActionPerformed
-        // TODO add your handling code here:
+        // make a function for both up and down w/ parameters
     }//GEN-LAST:event_btnPlaylistDownActionPerformed
     
     private boolean isPlaylistEmpty() {
