@@ -52,6 +52,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         
         // initialise file/folder choosers
         fc = new JFileChooser();
+        fc.setMultiSelectionEnabled(true);
         fcFolder = new JFileChooser();
         fcFolder.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     }
@@ -347,38 +348,38 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File folder = fcFolder.getSelectedFile();
-            File[] listOfFiles = folder.listFiles();
-            if (listOfFiles != null) {
-                List<String> nonAudioFiles = new ArrayList<String>();
-                for (File file : listOfFiles) {
-                    if (file.isFile() && checkIfAudioFile(file)) {
-                        addToPlaylist(file);
-                    } else if (file.isFile()) {
-                        nonAudioFiles.add(file.getName());
-                    }
-                }
-                if (!nonAudioFiles.isEmpty()) {
-                    showErrorDialog("Selected files aren't audio files:\n" + String.join("\n", nonAudioFiles));
-                }
-            } else {
-                showErrorDialog("Selected folder is empty");
-            }
+            File[] files = folder.listFiles();
+            addSongsToPlaylist(files);
         }
     }//GEN-LAST:event_btnAddFolderActionPerformed
 
     private void btnAddFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFileActionPerformed
         int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
-            if (checkIfAudioFile(file)) {
-                addToPlaylist(file);
-            } else {
-                showErrorDialog("Selected file isn't an audio file:\n" + file.getName());
-            }
+            File[] files = fc.getSelectedFiles();
+            addSongsToPlaylist(files);
         }
     }//GEN-LAST:event_btnAddFileActionPerformed
-
-    private void addToPlaylist(File file) {
+    
+    private void addSongsToPlaylist(File[] files) {
+        if (files != null) {
+            List<String> nonAudioFiles = new ArrayList<String>();
+            for (File file : files) {
+                if (file.isFile() && checkIfAudioFile(file)) {
+                    addSongToPlaylist(file);
+                } else if (file.isFile()) {
+                    nonAudioFiles.add(file.getName());
+                }
+            }
+            if (!nonAudioFiles.isEmpty()) {
+                showErrorDialog("Selected files aren't audio files:\n" + String.join("\n", nonAudioFiles));
+            }
+        } else {
+            showErrorDialog("Selected folder is empty");
+        }
+    }
+    
+    private void addSongToPlaylist(File file) {
         // add attributes to array - name and path
         Object[] fileAttributes = new Object[2];
         fileAttributes[0] = file.getName();
