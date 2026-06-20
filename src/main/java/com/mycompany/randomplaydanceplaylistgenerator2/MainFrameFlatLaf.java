@@ -391,10 +391,12 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }
 
     private void btnPlaylistDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistDeleteActionPerformed
-        int playlistIndex = getSelectedPlaylistIndex();
-        if (playlistIndex == -1) return;
+        int[] playlistIndexes = getSelectedPlaylistIndexes();
+        if (playlistIndexes.length == 0) return;
         dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
-        dtmPlaylist.removeRow(playlistIndex);
+        for (int i = playlistIndexes.length - 1; i > -1; i--) {
+            dtmPlaylist.removeRow(playlistIndexes[i]);
+        }
     }//GEN-LAST:event_btnPlaylistDeleteActionPerformed
 
     private void btnPlaylistUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistUpActionPerformed
@@ -406,7 +408,8 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPlaylistDownActionPerformed
     
     private void movePlaylistSong(boolean isDown) {
-        int playlistIndex = getSelectedPlaylistIndex();
+        //int playlistIndex = getSelectedPlaylistIndexes();
+        int playlistIndex = 5;
         // return if index not found or already at top of playlist
         int playlistEndIndex = 0;
         if (isDown) {
@@ -428,13 +431,13 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         tblPlaylist.setRowSelectionInterval(playlistIndex, playlistIndex);
     }
     
-    private int getSelectedPlaylistIndex() {
-        int selectedRow = tblPlaylist.getSelectedRow();
+    private int[] getSelectedPlaylistIndexes() {
+        int[] selectedRows = tblPlaylist.getSelectedRows();
 
-        if (selectedRow == -1) {
+        if (selectedRows.length == 0) {
             showErrorDialog("No song selected");
         }
-        return selectedRow;
+        return selectedRows;
     }
 
     // countdown functions
