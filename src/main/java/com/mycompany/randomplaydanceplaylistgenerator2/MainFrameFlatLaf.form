@@ -40,13 +40,13 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="spCountdown" min="-2" pref="189" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="spPlaylist" max="32767" attributes="0"/>
+              <Component id="spPlaylist" pref="455" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="btnPlaylistUp" max="32767" attributes="0"/>
-                  <Component id="btnPlaylistDown" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnPlaylistDown" min="-2" pref="29" max="-2" attributes="0"/>
+                  <Component id="btnPlaylistUp" pref="0" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="3" pref="3" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
           </Group>
           <Component id="pnTop" alignment="1" max="32767" attributes="0"/>
       </Group>
@@ -102,12 +102,14 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="lbCountdown" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
-                      <Component id="btnPlaylistAddFile" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnPlaylistAddFolder" alignment="3" max="-2" attributes="0"/>
-                      <Component id="btnPlaylistDelete" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="lbPlaylist" alignment="1" min="-2" pref="23" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="lbCountdown" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                          <Component id="btnPlaylistAddFile" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnPlaylistAddFolder" alignment="3" max="-2" attributes="0"/>
+                          <Component id="btnPlaylistDelete" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>

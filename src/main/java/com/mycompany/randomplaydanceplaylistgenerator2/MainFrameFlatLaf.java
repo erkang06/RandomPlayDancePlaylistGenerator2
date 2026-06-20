@@ -134,12 +134,13 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
             pnTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnTopLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnPlaylistAddFile)
-                    .addComponent(btnPlaylistAddFolder)
-                    .addComponent(btnPlaylistDelete)
-                    .addComponent(lbPlaylist, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(pnTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbPlaylist, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(pnTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lbCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnPlaylistAddFile)
+                        .addComponent(btnPlaylistAddFolder)
+                        .addComponent(btnPlaylistDelete)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -296,12 +297,12 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(spCountdown, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(spPlaylist)
+                .addComponent(spPlaylist, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnPlaylistUp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnPlaylistDown))
-                .addGap(3, 3, 3))
+                    .addComponent(btnPlaylistDown, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPlaylistUp, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGap(6, 6, 6))
             .addComponent(pnTop, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -409,8 +410,9 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         int[] playlistIndexes = getSelectedPlaylistIndexes();
         if (playlistIndexes.length == 0) return;
         dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
-        for (int i = playlistIndexes.length - 1; i > -1; i--) {
-            dtmPlaylist.removeRow(playlistIndexes[i]);
+        ArrayUtils.reverse(playlistIndexes);
+        for (int playlistIndex : playlistIndexes) {
+            dtmPlaylist.removeRow(playlistIndex);
         }
     }//GEN-LAST:event_btnPlaylistDeleteActionPerformed
 
@@ -463,17 +465,23 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     private void btnCountdownAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownAddActionPerformed
         int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File countdownFile = fc.getSelectedFile();
-            if (checkIfAudioFile(countdownFile)) {
-                String countdownFileName = countdownFile.getName();
-                try {
-                    Files.copy(countdownFile.toPath(), Paths.get(countdownCanonicalPath + "/" + countdownFileName));
-                    updateCountdowns();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            File[] files = fc.getSelectedFiles();
+            List<String> nonAudioFiles = new ArrayList<String>();
+            for (File file : files) {
+                if (file.isFile() && checkIfAudioFile(file)) {
+                    String fileName = file.getName();
+                    try {
+                        Files.copy(file.toPath(), Paths.get(countdownCanonicalPath + "/" + fileName));
+                        updateCountdowns();
+                    } catch (IOException e) {
+                        showErrorDialog(e.getLocalizedMessage());
+                    }
+                } else if (file.isFile()) {
+                    nonAudioFiles.add(file.getName());
                 }
-            } else {
-                showErrorDialog("Selected file isn't an audio file:\n" + countdownFile.getName());
+            }
+            if (!nonAudioFiles.isEmpty()) {
+                showErrorDialog("Selected files aren't audio files:\n" + String.join("\n", nonAudioFiles));
             }
         }
     }//GEN-LAST:event_btnCountdownAddActionPerformed
@@ -485,9 +493,9 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         // get selected countdown
         dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
         String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
-        File countdownFile = new File(countdownCanonicalPath + "/" + selectedCountdown);
+        File file = new File(countdownCanonicalPath + "/" + selectedCountdown);
         
-        if (countdownFile.delete()) {
+        if (file.delete()) {
             updateCountdowns();
         } else {
             showErrorDialog("Countdown couldn't be deleted");
