@@ -584,6 +584,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
     private void tblPlaylistKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblPlaylistKeyPressed
         int keyCode = evt.getKeyCode();
+        evt.consume();
         switch (keyCode) {
             case java.awt.event.KeyEvent.VK_UP:
                 movePlaylistSong(false);
