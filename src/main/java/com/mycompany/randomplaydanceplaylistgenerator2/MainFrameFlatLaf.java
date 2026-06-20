@@ -340,13 +340,6 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                 JOptionPane.ERROR_MESSAGE);
     }
     
-    private int getSelectedCountdownIndex() {
-        int selectedRow = tblCountdown.getSelectedRow();
-        if (selectedRow == -1) {
-            showErrorDialog("No countdown selected");
-        } return selectedRow;
-    }
-    
     private boolean checkIfAudioFile(File file) {
         try {
             String mimeType = Files.probeContentType(file.toPath());
@@ -355,11 +348,17 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
             }
         } catch (Exception e) {
             showErrorDialog(e.getLocalizedMessage());
-        }
-        return false;
+        } return false;
     }
     
     // playlist functions
+    private int[] getSelectedPlaylistIndexes() {
+        int[] selectedRows = tblPlaylist.getSelectedRows();
+        if (selectedRows.length == 0) {
+            showErrorDialog("No song selected");
+        } return selectedRows;
+    }
+    
     private void btnPlaylistAddFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistAddFolderActionPerformed
         int returnVal = fcFolder.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -423,6 +422,19 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     private void btnPlaylistDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistDownActionPerformed
         movePlaylistSong(true);
     }//GEN-LAST:event_btnPlaylistDownActionPerformed
+
+    private void tblPlaylistKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblPlaylistKeyPressed
+        int keyCode = evt.getKeyCode();
+        evt.consume();
+        switch (keyCode) {
+            case java.awt.event.KeyEvent.VK_UP:
+                movePlaylistSong(false);
+                break;
+            case java.awt.event.KeyEvent.VK_DOWN:
+                movePlaylistSong(true);
+                break;
+        }
+    }//GEN-LAST:event_tblPlaylistKeyPressed
     
     private void movePlaylistSong(boolean isDown) {
         int[] playlistIndexes = getSelectedPlaylistIndexes();
@@ -451,17 +463,33 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
             tblPlaylist.getSelectionModel().addSelectionInterval(rowToSwapIndex, rowToSwapIndex);
         }
     }
-    
-    private int[] getSelectedPlaylistIndexes() {
-        int[] selectedRows = tblPlaylist.getSelectedRows();
-
-        if (selectedRows.length == 0) {
-            showErrorDialog("No song selected");
-        }
-        return selectedRows;
-    }
 
     // countdown functions
+    private int[] getSelectedCountdownIndexes() {
+        int[] selectedRows = tblCountdown.getSelectedRows();
+        if (selectedRows.length == 0) {
+            showErrorDialog("No song selected");
+        } return selectedRows;
+    }
+    
+    private void updateCountdowns() {
+        File[] listOfFiles = COUNTDOWN_FOLDER.listFiles();
+        if (listOfFiles != null) {
+            List<Object[]> fileList = new ArrayList<>();
+            for (File file : listOfFiles) {
+                if (file.isFile()) { // add each countdown to list
+                    Object[] fileAttributes = {file.getName()};
+                    fileList.add(fileAttributes);
+                }
+            }
+            dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
+            dtmCountdown.setRowCount(0);
+            for (Object[] row : fileList) {
+                dtmCountdown.addRow(row);
+            }
+        }
+    }
+    
     private void btnCountdownAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownAddActionPerformed
         int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -487,38 +515,26 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCountdownAddActionPerformed
    
     private void btnCountdownDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownDeleteActionPerformed
-        int countdownIndex = getSelectedCountdownIndex();
-        if (countdownIndex == -1) return;
+        int[] countdownIndexes = getSelectedCountdownIndexes();
+        if (countdownIndexes.length == 0) return;
         
         // get selected countdown
         dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
-        String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
-        File file = new File(countdownCanonicalPath + "/" + selectedCountdown);
-        
-        if (file.delete()) {
-            updateCountdowns();
-        } else {
-            showErrorDialog("Countdown couldn't be deleted");
+        ArrayUtils.reverse(countdownIndexes);
+        List<String> nonDeletedFiles = new ArrayList<String>();
+        for (int countdownIndex : countdownIndexes) {
+            String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
+            File file = new File(countdownCanonicalPath + "/" + selectedCountdown);
+
+            if (!file.delete()) {
+                nonDeletedFiles.add(selectedCountdown);
+            }
+        }
+        updateCountdowns();
+        if (!nonDeletedFiles.isEmpty()) {
+            showErrorDialog("Selected countdowns couldn't be deleted:\n" + String.join("\n", nonDeletedFiles));
         }
     }//GEN-LAST:event_btnCountdownDeleteActionPerformed
-
-    private void updateCountdowns() {
-        File[] listOfFiles = COUNTDOWN_FOLDER.listFiles();
-        if (listOfFiles != null) {
-            List<Object[]> fileList = new ArrayList<>();
-            for (File file : listOfFiles) {
-                if (file.isFile()) { // add each countdown to list
-                    Object[] fileAttributes = {file.getName()};
-                    fileList.add(fileAttributes);
-                }
-            }
-            dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
-            dtmCountdown.setRowCount(0);
-            for (Object[] row : fileList) {
-                dtmCountdown.addRow(row);
-            }
-        }
-    }
 
     // location functions
     private void btnLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLocationActionPerformed
@@ -537,15 +553,18 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
     private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
         // data validation
-        int countdownIndex = getSelectedCountdownIndex();
-        if (countdownIndex == -1) return;
+        int[] countdownIndexes = getSelectedCountdownIndexes();
+        if (countdownIndexes.length > 1) {
+            showErrorDialog("Multiple countdowns selected");
+            return;
+        }
         if (isPlaylistEmpty()) return;
         if (!isPathValid()) return;
         if (!doesOutputFileNameExist()) return;
         
         // get selected countdown
         dtmCountdown = (DefaultTableModel) tblCountdown.getModel();
-        String selectedCountdown = dtmCountdown.getValueAt(countdownIndex, 0).toString();
+        String selectedCountdown = dtmCountdown.getValueAt(countdownIndexes[0], 0).toString();
         
         try { // create ffmpeg command
             
@@ -612,19 +631,6 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_btnExportActionPerformed
-
-    private void tblPlaylistKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblPlaylistKeyPressed
-        int keyCode = evt.getKeyCode();
-        evt.consume();
-        switch (keyCode) {
-            case java.awt.event.KeyEvent.VK_UP:
-                movePlaylistSong(false);
-                break;
-            case java.awt.event.KeyEvent.VK_DOWN:
-                movePlaylistSong(true);
-                break;
-        }
-    }//GEN-LAST:event_tblPlaylistKeyPressed
     
     private boolean isPlaylistEmpty() {
         if (tblPlaylist.getRowCount() == 0) {
