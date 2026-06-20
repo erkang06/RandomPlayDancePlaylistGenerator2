@@ -112,10 +112,12 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
 
         btnPlaylistUp.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnPlaylistUp.setText("↑");
+        btnPlaylistUp.setFocusable(false);
         btnPlaylistUp.addActionListener(this::btnPlaylistUpActionPerformed);
 
         btnPlaylistDown.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnPlaylistDown.setText("↓");
+        btnPlaylistDown.setFocusable(false);
         btnPlaylistDown.addActionListener(this::btnPlaylistDownActionPerformed);
 
         spCountdown.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -158,6 +160,11 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         });
         tblPlaylist.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         tblPlaylist.setFillsViewportHeight(true);
+        tblPlaylist.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tblPlaylistKeyPressed(evt);
+            }
+        });
         spAudio.setViewportView(tblPlaylist);
 
         btnExport.setForeground(new java.awt.Color(0, 255, 0));
@@ -236,11 +243,10 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(tfFileName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(cbFileFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(btnClear)
-                                    .addComponent(btnExport)))
+                                .addComponent(cbFileFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnClear)
+                                .addComponent(btnExport))
+                            .addComponent(tfFileName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnCountdownDelete)
                             .addComponent(lbFileName, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
@@ -390,6 +396,37 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         dtmPlaylist.removeRow(playlistIndex);
     }//GEN-LAST:event_btnDeleteSongActionPerformed
 
+    private void btnPlaylistUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistUpActionPerformed
+        movePlaylistSong(false);
+    }//GEN-LAST:event_btnPlaylistUpActionPerformed
+
+    private void btnPlaylistDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistDownActionPerformed
+        movePlaylistSong(true);
+    }//GEN-LAST:event_btnPlaylistDownActionPerformed
+    
+    private void movePlaylistSong(boolean isDown) {
+        int playlistIndex = getSelectedPlaylistIndex();
+        // return if index not found or already at top of playlist
+        int playlistEndIndex = 0;
+        if (isDown) {
+            playlistEndIndex = tblPlaylist.getRowCount() - 1;
+        }
+        if (playlistIndex == -1 || playlistIndex == playlistEndIndex) return;
+        dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
+        Object[] rowToSwap = new Object[dtmPlaylist.getColumnCount()];
+        for (int i = 0; i < dtmPlaylist.getColumnCount(); i++) {
+            rowToSwap[i] = dtmPlaylist.getValueAt(playlistIndex, i);
+        }
+        dtmPlaylist.removeRow(playlistIndex);
+        if (isDown) {
+            playlistIndex++;
+        } else {
+            playlistIndex--;
+        }
+        dtmPlaylist.insertRow(playlistIndex, rowToSwap);
+        tblPlaylist.setRowSelectionInterval(playlistIndex, playlistIndex);
+    }
+    
     private int getSelectedPlaylistIndex() {
         int selectedRow = tblPlaylist.getSelectedRow();
 
@@ -398,7 +435,7 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         }
         return selectedRow;
     }
-    
+
     // countdown functions
     private void btnCountdownAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountdownAddActionPerformed
         int returnVal = fc.showOpenDialog(MainFrameFlatLaf.this);
@@ -545,36 +582,18 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnExportActionPerformed
 
-    private void btnPlaylistUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistUpActionPerformed
-        movePlaylistSong(false);
-    }//GEN-LAST:event_btnPlaylistUpActionPerformed
-
-    private void btnPlaylistDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaylistDownActionPerformed
-        movePlaylistSong(true);
-    }//GEN-LAST:event_btnPlaylistDownActionPerformed
+    private void tblPlaylistKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblPlaylistKeyPressed
+        int keyCode = evt.getKeyCode();
+        switch (keyCode) {
+            case java.awt.event.KeyEvent.VK_UP:
+                movePlaylistSong(false);
+                break;
+            case java.awt.event.KeyEvent.VK_DOWN:
+                movePlaylistSong(true);
+                break;
+        }
+    }//GEN-LAST:event_tblPlaylistKeyPressed
     
-    private void movePlaylistSong(boolean isDown) {
-        int playlistIndex = getSelectedPlaylistIndex();
-        // return if index not found or already at top of playlist
-        int playlistEndIndex = 0;
-        if (isDown) {
-            playlistEndIndex = tblPlaylist.getRowCount() - 1;
-        }
-        if (playlistIndex == -1 || playlistIndex == playlistEndIndex) return;
-        dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
-        Object[] rowToSwap = new Object[dtmPlaylist.getColumnCount()];
-        for (int i = 0; i < dtmPlaylist.getColumnCount(); i++) {
-            rowToSwap[i] = dtmPlaylist.getValueAt(playlistIndex, i);
-        }
-        dtmPlaylist.removeRow(playlistIndex);
-        if (isDown) {
-            playlistIndex++;
-        } else {
-            playlistIndex--;
-        }
-        dtmPlaylist.insertRow(playlistIndex, rowToSwap);
-        tblPlaylist.setRowSelectionInterval(playlistIndex, playlistIndex);
-    }
     private boolean isPlaylistEmpty() {
         if (tblPlaylist.getRowCount() == 0) {
             showErrorDialog("Playlist is empty");
