@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import javax.swing.table.DefaultTableModel;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  *
@@ -408,27 +409,31 @@ public class MainFrameFlatLaf extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPlaylistDownActionPerformed
     
     private void movePlaylistSong(boolean isDown) {
-        //int playlistIndex = getSelectedPlaylistIndexes();
-        int playlistIndex = 5;
-        // return if index not found or already at top of playlist
+        int[] playlistIndexes = getSelectedPlaylistIndexes();
+        // return if any index not found or already at top of playlist
+        if (playlistIndexes.length == 0) return;
         int playlistEndIndex = 0;
         if (isDown) {
             playlistEndIndex = tblPlaylist.getRowCount() - 1;
+            ArrayUtils.reverse(playlistIndexes);
         }
-        if (playlistIndex == -1 || playlistIndex == playlistEndIndex) return;
-        dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
-        Object[] rowToSwap = new Object[dtmPlaylist.getColumnCount()];
-        for (int i = 0; i < dtmPlaylist.getColumnCount(); i++) {
-            rowToSwap[i] = dtmPlaylist.getValueAt(playlistIndex, i);
+        for (int playlistIndex : playlistIndexes) {
+            if (playlistIndex == playlistEndIndex) break;
+            dtmPlaylist = (DefaultTableModel) tblPlaylist.getModel();
+            // swap unselected rows around selected rows to maintain selection
+            Object[] rowToSwap = new Object[dtmPlaylist.getColumnCount()];
+            int rowToSwapIndex = playlistIndex - 1;
+            if (isDown) {
+                rowToSwapIndex = playlistIndex + 1;
+            }
+            for (int i = 0; i < dtmPlaylist.getColumnCount(); i++) {
+                rowToSwap[i] = dtmPlaylist.getValueAt(rowToSwapIndex, i);
+            }
+            dtmPlaylist.removeRow(rowToSwapIndex);
+            dtmPlaylist.insertRow(playlistIndex, rowToSwap);
+            tblPlaylist.getSelectionModel().removeSelectionInterval(playlistIndex, playlistIndex);
+            tblPlaylist.getSelectionModel().addSelectionInterval(rowToSwapIndex, rowToSwapIndex);
         }
-        dtmPlaylist.removeRow(playlistIndex);
-        if (isDown) {
-            playlistIndex++;
-        } else {
-            playlistIndex--;
-        }
-        dtmPlaylist.insertRow(playlistIndex, rowToSwap);
-        tblPlaylist.setRowSelectionInterval(playlistIndex, playlistIndex);
     }
     
     private int[] getSelectedPlaylistIndexes() {
