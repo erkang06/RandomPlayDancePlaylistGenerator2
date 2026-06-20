@@ -46,14 +46,14 @@
                   <Group type="102" attributes="0">
                       <Component id="lbPlaylist" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnAddFolder" min="-2" pref="89" max="-2" attributes="0"/>
+                      <Component id="btnPlaylistAddFolder" min="-2" pref="89" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnAddFile" min="-2" pref="74" max="-2" attributes="0"/>
+                      <Component id="btnPlaylistAddFile" min="-2" pref="74" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnDeleteSong" max="-2" attributes="0"/>
+                      <Component id="btnPlaylistDelete" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <Component id="spAudio" max="32767" attributes="0"/>
+                      <Component id="spPlaylist" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="btnPlaylistUp" max="32767" attributes="0"/>
@@ -73,9 +73,9 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="lbCountdown" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
                   <Component id="lbPlaylist" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="btnAddFile" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="btnAddFolder" alignment="3" max="-2" attributes="0"/>
-                  <Component id="btnDeleteSong" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnPlaylistAddFile" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnPlaylistAddFolder" alignment="3" max="-2" attributes="0"/>
+                  <Component id="btnPlaylistDelete" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
@@ -88,7 +88,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="spAudio" alignment="1" pref="0" max="32767" attributes="0"/>
+                          <Component id="spPlaylist" alignment="1" pref="0" max="32767" attributes="0"/>
                           <Component id="spCountdown" pref="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -100,21 +100,21 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JButton" name="btnAddFile">
+    <Component class="javax.swing.JButton" name="btnPlaylistAddFile">
       <Properties>
         <Property name="text" type="java.lang.String" value="Add File"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddFileActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPlaylistAddFileActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="btnAddFolder">
+    <Component class="javax.swing.JButton" name="btnPlaylistAddFolder">
       <Properties>
         <Property name="text" type="java.lang.String" value="Add Folder"/>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddFolderActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPlaylistAddFolderActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="lbCountdown">
@@ -123,12 +123,12 @@
         <Property name="text" type="java.lang.String" value="Countdown Audio"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="btnDeleteSong">
+    <Component class="javax.swing.JButton" name="btnPlaylistDelete">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete Song"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDeleteSongActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPlaylistDeleteActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="lbPlaylist">
@@ -202,7 +202,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JScrollPane" name="spAudio">
+    <Container class="javax.swing.JScrollPane" name="spPlaylist">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
